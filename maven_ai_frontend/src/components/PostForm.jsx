@@ -23,34 +23,39 @@ const PostForm = ({hideForm, fetchPosts}) =>{
     }
 
     return (
-        <div className="rounded-xl shadow-lg  content-center mb-8 border border-white-200">
-            <form onSubmit={handleSubmit}>
-            <div className = 'col'>
-                <div className='row items-center p-3'>
-                <input
-                    type="text"
-                    placeholder="Title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    required
-                    className='border border-white-200'
-                />
-                </div>
-                <div className='row items-center'>
-                <textarea
-                    placeholder="Content"
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    required
-                    className='border border-white-200'
-                />
-                </div>
-                <div className='row items-center'>
-                    <button type="submit">Create Post</button>
+        <div className="modal-overlay" onClick={hideForm}>
+            <div className="modal" onClick={(e) => e.stopPropagation()}>
+                <button onClick={hideForm} className="modal-close">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                <div className="container">
+                    <form onSubmit={handleSubmit} className='form'>
+                        <div className='row items-center'>
+                                    <input
+                                        type="text"
+                                        placeholder="Title"
+                                        value={title}
+                                        onChange={(e) => setTitle(e.target.value)}
+                                        required
+                                        className='input'
+                                    />
+                            <textarea
+                                placeholder="Content"
+                                value={content}
+                                onChange={(e) => setContent(e.target.value)}
+                                required
+                                className='input'
+                            />
+                        </div>
+                        <div className='row items-center'>
+                            <button type="submit" className='btn btn-primary'>Create Post</button>
+                        </div>
+                    </form>
+                    </div>
                 </div>
             </div>
-            </form>
-        </div>
     )
 }
 

@@ -44,68 +44,79 @@ function PostDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-xl text-gray-600">Loading...</div>
+      <div className="loading">
+        <div className="loading-content">
+          <div className="spinner"></div>
+          <p className="loading-text">Loading...</p>
+        </div>
       </div>
     )
   }
 
   if (!post) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-xl text-gray-600">Post not found</div>
+      <div className="loading">
+        <div className="empty-state">
+          <div className="empty-state-icon">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h3>Post not found</h3>
+          <p>The post you're looking for doesn't exist.</p>
+          <button onClick={() => navigate('/')} className="btn btn-primary" style={{ marginTop: '1.5rem' }}>
+            Go back home
+          </button>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-transparent from-blue-50 to-indigo-100 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="page">
+      <div>
         {/* Back Button */}
-        <button
-          onClick={() => navigate('/')}
-          className="mb-6 flex items-center text-blue-600 hover:text-blue-800 font-medium transition"
-        >
-          <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Back to Posts
-        </button>
-
+        <header className="header">
+          <div className="header-content">
+            <button onClick={() => navigate('/')} className="btn-back">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back to posts
+            </button>
+            <div className="logo">
+              <div className="logo-icon">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <span style={{ fontSize: '0.875rem', fontWeight: 700 }}>Patricks Posts</span>
+            </div>
+          </div>
+        </header>
         {/* Post Card */}
-        <div className="rounded-xl shadow-lg overflow-hidden border border-gray-200">
+        <div>
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-8">
             <h1 className="text-4xl font-bold text-white">
               {post.title}
             </h1>
-            <p className="text-sm bg-transparent">
-              Post ID: {post.id}
-            </p>
           </div>
 
           {/* Content */}
-          <div className="p-8">
-            <div className="prose max-w-none">
-              <p className="text-lg leading-relaxed whitespace-pre-wrap">
-                {post.content}
-              </p>
-            </div>
+          <div className="article-content">
+            <p className="article-text">{post.content}</p>
           </div>
 
           {/* Footer */}
-          <div className="border-t border-gray-200 p-6 bg-gray-50 flex justify-between items-center">
+          <div className="article-footer">
             <button
-              onClick={() => navigate('/')}
-              className="text-blue-600 hover:text-blue-800text-gray-800 font-semibold py-2 px-6 rounded-lg transition duration-200 transform hover:scale-105 shadow-md"
+              onClick={(e) => handleDelete()}
+              className="btn-icon"
             >
-              Close
-            </button>
-            <button
-              onClick={handleDelete}
-              className="bg-red-500 text-blue-600 hover:text-blue-800 font-semibold py-2 px-6 rounded-lg transition duration-200 transform hover:scale-105 shadow-md m-2"
-            >
-              Delete Post
+              <svg style={{ width: '1rem', height: '1rem' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
             </button>
           </div>
         </div>

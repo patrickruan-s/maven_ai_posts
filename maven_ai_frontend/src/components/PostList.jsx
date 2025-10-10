@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import PostForm from './PostForm'
 import { useNavigate } from 'react-router-dom'
+import '../App.css'
 
 function PostList() {
   const navigate = useNavigate()
@@ -25,7 +26,8 @@ function PostList() {
   }
 
   // Delete post
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, e) => {
+        e.stopPropagation()
         if (window.confirm('Are you sure you want to delete this post?')) {
         try { await fetch(`http://localhost:3000/posts/${id}`, {
           method: 'DELETE'
@@ -61,39 +63,68 @@ function PostList() {
   }
 
   return (
-    <div className="App">
-      <h1 className='App-Header row'>
-        Patrick's Posts
-      </h1>
-
-      <div className='p-6'>
-        {showPostForm ? (
-          <PostForm hideForm={hideForm} fetchPosts={fetchPosts} />
-        ) : (
-          <button onClick={showForm}>+</button>
-        )}
-      </div>
+    <div className="page">
+      <header className="header">
+        <div className="header-content">
+          <div className="logo">
+            <div className="logo-icon">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            </div>
+            <div className="logo-text">
+              <h1>Patricks Posts</h1>
+            </div>
+          </div>
+          <div>
+            <div>
+              {showPostForm ? (
+                <PostForm hideForm={hideForm} fetchPosts={fetchPosts} />
+              ) : (
+                <button onClick={showForm} className="btn btn-primary">+</button>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
 
 
       {posts.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-lg p-12 text-center border border-gray-200">
-            <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-            </svg>
-            <p className="text-gray-500 text-lg">
-              No posts yet. Create your first post above!
-            </p>
-          </div>
-          ) : (
-        <div className="posts grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mx-auto justify-items-center">
-          {posts.map(post => (
-            <div key={post.id} className="bg-transparent rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 flex flex-col">
-              <button onClick={() => handleCardClick(post.id)}>
-                <h2 className="text-xl font-bold text-white-800 mb-3 line-clamp-2">{post.title}</h2>
-                <p className="text-white-600 leading-relaxed line-clamp-4">{post.content}</p>
-              </button>
-              <button onClick={() => handleDelete(post.id)}>Delete</button>
+            <div className="empty-state">
+              <h3>No posts yet</h3>
+              <p>Create your first post using the form above.</p>
             </div>
+          ) : (
+        <div className="grid">
+          {posts.map(post => (
+                <article
+                  key={post.id}
+                  onClick={() => handleCardClick(post.id)}
+                  className="card m-6"
+                >
+                  <div className="card-accent"></div>
+                  
+                  <div className="card-content">
+                    <div className="card-header">
+                      <span className="card-badge">Article</span>
+                      <span className="card-id">#{post.id}</span>
+                    </div>
+                    
+                    <h3 className="card-title line-clamp-2">{post.title}</h3>
+                    <p className="card-text line-clamp-3">{post.content}</p>
+                  </div>
+                  
+                  <div className="card-footer">
+                    <button
+                      onClick={(e) => handleDelete(post.id, e)}
+                      className="btn-icon"
+                    >
+                      <svg style={{ width: '1rem', height: '1rem' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </article>
           ))}
         </div>
       )}
