@@ -1,25 +1,41 @@
-import { useState} from 'react'
+import { useState } from 'react'
  
 const PostForm = ({hideForm, fetchPosts}) =>{
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
+    const [image, setImage] = useState(null)
 
     // Create post
     const handleSubmit = async (e) => {
         e.preventDefault()
         
-        try { await fetch('http://localhost:3000/posts', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ title, content })
+        try { 
+        const formData = new FormData()
+        formData.append('post[title]', title)
+        formData.append('post[content]', content)
+        if (image) {
+            formData.append('post[image]', image)
+        } 
+        await fetch('http://localhost:3000/posts', {
+            method: 'POST',
+            body: formData
         })
-        hideForm();
-        fetchPosts();
+
+        setImage(null)
+        hideForm()
+        fetchPosts()
     } catch (error) {
         console.error(`Error creating post: ${error}`)
     }
+    }
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0]
+        if (file) {
+        setImage(file)
+        const reader = new FileReader()
+        reader.readAsDataURL(file)
+        }
     }
 
     return (
@@ -33,14 +49,14 @@ const PostForm = ({hideForm, fetchPosts}) =>{
                 <div className="container">
                     <form onSubmit={handleSubmit} className='form'>
                         <div className='row items-center'>
-                                    <input
-                                        type="text"
-                                        placeholder="Title"
-                                        value={title}
-                                        onChange={(e) => setTitle(e.target.value)}
-                                        required
-                                        className='input'
-                                    />
+                            <input
+                                type="text"
+                                placeholder="Title"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                required
+                                className='input'
+                            />
                             <textarea
                                 placeholder="Content"
                                 value={content}
@@ -48,14 +64,28 @@ const PostForm = ({hideForm, fetchPosts}) =>{
                                 required
                                 className='input'
                             />
+                            <input
+                                placeholder="Image"
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                style={{ 
+                                display: 'block',
+                                width: '100%',
+                                padding: '0.75rem',
+                                border: '1px solid rgb(226 232 240)',
+                                borderRadius: '0.75rem',
+                                cursor: 'pointer'
+                                }}
+                            />
                         </div>
                         <div className='row items-center'>
                             <button type="submit" className='btn btn-primary'>Create Post</button>
                         </div>
                     </form>
-                    </div>
                 </div>
             </div>
+        </div>
     )
 }
 

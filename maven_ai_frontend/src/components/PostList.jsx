@@ -103,7 +103,18 @@ function PostList() {
                   className="card m-6"
                 >
                   <div className="card-accent"></div>
-                  
+                  <div className="card-image">
+                    {post.image_url && (
+                      <div style={{ width: '100%', height: '12rem', overflow: 'hidden' }}>
+                        <img 
+                          src={post.image_url} 
+                          alt={post.title}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                      </div>
+                    )}
+                  </div>
+            
                   <div className="card-content">
                     <div className="card-header">
                       <span className="card-badge">Article</span>

@@ -95,12 +95,23 @@ function PostDetail() {
           </div>
         </header>
         {/* Post Card */}
-        <div>
+        <div className='article'>
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-8">
             <h1 className="text-4xl font-bold text-white">
               {post.title}
             </h1>
+          </div>
+          <div className='card-image'>
+            {post.image_url && (
+              <div style={{ marginBottom: '2rem', borderRadius: '0.75rem', overflow: 'hidden' }}>
+                <img 
+                  src={post.image_url} 
+                  alt={post.title}
+                  style={{ width: '100%', maxHeight: '30rem', objectFit: 'cover' }}
+                />
+              </div>
+            )}
           </div>
 
           {/* Content */}

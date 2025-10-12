@@ -5,20 +5,24 @@ class PostsController < ApplicationController
   def index
     @posts = Post.all
 
-    render json: @posts
+    render json: @posts.map { |post| post_with_image(post) }
   end
 
   # GET /posts/1
   def show
-    render json: @post
+    render json: post_with_image(@post)
   end
 
   # POST /posts
   def create
     @post = Post.new(post_params)
 
+    if params[:post][:image].present?
+      @post.image.attach(params[:post][:image])
+    end
+
     if @post.save
-      render json: @post, status: :created, location: @post
+      render json: post_with_image(@post), status: :created, location: @post
     else
       render json: @post.errors, status: :unprocessable_entity
     end
@@ -27,7 +31,7 @@ class PostsController < ApplicationController
   # PATCH/PUT /posts/1
   def update
     if @post.update(post_params)
-      render json: @post
+      render json: post_with_image(@post)
     else
       render json: @post.errors, status: :unprocessable_entity
     end
@@ -47,5 +51,11 @@ class PostsController < ApplicationController
     # Only allow a list of trusted parameters through.
     def post_params
       params.require(:post).permit(:title, :content, :scheduled)
+    end
+
+    def post_with_image(post)
+      post.as_json.merge(
+        image_url: post.image.attached? ? url_for(post.image) : nil
+      )
     end
 end
