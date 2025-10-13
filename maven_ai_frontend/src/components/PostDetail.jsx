@@ -104,11 +104,11 @@ function PostDetail() {
           </div>
           <div className='card-image'>
             {post.image_url && (
-              <div style={{ marginBottom: '2rem', borderRadius: '0.75rem', overflow: 'hidden' }}>
+              <div className='p-8'>
                 <img 
                   src={post.image_url} 
                   alt={post.title}
-                  style={{ width: '100%', maxHeight: '30rem', objectFit: 'cover' }}
+                  style={{ width: '100%', maxHeight: '100%', objectFit: 'cover' }}
                 />
               </div>
             )}

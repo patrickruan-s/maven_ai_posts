@@ -30,6 +30,10 @@ class PostsController < ApplicationController
 
   # PATCH/PUT /posts/1
   def update
+    if params[:post][:image].present?
+      @post.image.attach(params[:post][:image])
+    end
+  
     if @post.update(post_params)
       render json: post_with_image(@post)
     else

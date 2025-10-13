@@ -8,6 +8,8 @@ function PostList() {
   const [posts, setPosts] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [showPostForm, setShowPostForm] = useState(false);
+  const [editingPost, setEditingPost] = useState(null)
+
 
   // Fetch posts
   useEffect(() => {
@@ -47,6 +49,7 @@ function PostList() {
   //hide Create Form
   const hideForm = async () => {
     setShowPostForm(false);
+    setEditingPost(null)
   }
 
   //
@@ -54,10 +57,20 @@ function PostList() {
     navigate(`/posts/${postId}`)
   }
 
+  const handleEdit = (post, e) => {
+    e.stopPropagation();
+
+    setEditingPost(post)
+    showForm()
+  }
+
   if (isLoading) {
     return (
-      <div className="items bg-transparent justify-center">
-        <div className="text-xl text-gray-600">Loading...</div>
+      <div className="loading">
+        <div className="loading-content">
+          <div className="spinner"></div>
+          <p className="loading-text">Loading...</p>
+        </div>
       </div>
     )
   }
@@ -79,7 +92,7 @@ function PostList() {
           <div>
             <div>
               {showPostForm ? (
-                <PostForm hideForm={hideForm} fetchPosts={fetchPosts} />
+                <PostForm hideForm={hideForm} fetchPosts={fetchPosts} editingPost={editingPost}/>
               ) : (
                 <button onClick={showForm} className="btn btn-primary">+</button>
               )}
@@ -126,6 +139,15 @@ function PostList() {
                   </div>
                   
                   <div className="card-footer">
+                    <button
+                      onClick={(e) => handleEdit(post, e)}
+                      className="btn-icon-edit btn-secondary"
+                      title="Edit post"
+                    >
+                      <svg style={{ width: '1rem', height: '1rem' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
                     <button
                       onClick={(e) => handleDelete(post.id, e)}
                       className="btn-icon"

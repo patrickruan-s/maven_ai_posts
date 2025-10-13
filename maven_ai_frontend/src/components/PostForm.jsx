@@ -1,9 +1,10 @@
 import { useState } from 'react'
  
-const PostForm = ({hideForm, fetchPosts}) =>{
-    const [title, setTitle] = useState('')
-    const [content, setContent] = useState('')
+const PostForm = ({hideForm, fetchPosts, editingPost}) =>{
+    const [title, setTitle] = useState(editingPost ? editingPost.title : '')
+    const [content, setContent] = useState(editingPost ? editingPost.content : '')
     const [image, setImage] = useState(null)
+    const [imagePreview, setImagePreview] = useState(editingPost ? editingPost.image_url : null)
 
     // Create post
     const handleSubmit = async (e) => {
@@ -15,15 +16,24 @@ const PostForm = ({hideForm, fetchPosts}) =>{
         formData.append('post[content]', content)
         if (image) {
             formData.append('post[image]', image)
-        } 
-        await fetch('http://localhost:3000/posts', {
-            method: 'POST',
+        }
+
+        const url = editingPost 
+        ? `http://localhost:3000/posts/${editingPost.id}`
+        : 'http://localhost:3000/posts'
+      
+        const method = editingPost ? 'PATCH' : 'POST'
+
+        const response = await fetch(url, {
+            method: method,
             body: formData
         })
-
-        setImage(null)
-        hideForm()
-        fetchPosts()
+        
+        if (response.ok) {
+            setImage(null)
+            hideForm()
+            fetchPosts()
+        }
     } catch (error) {
         console.error(`Error creating post: ${error}`)
     }
@@ -34,6 +44,9 @@ const PostForm = ({hideForm, fetchPosts}) =>{
         if (file) {
         setImage(file)
         const reader = new FileReader()
+        reader.onloadend = () => {
+            setImagePreview(reader.result)
+        }
         reader.readAsDataURL(file)
         }
     }
@@ -41,11 +54,15 @@ const PostForm = ({hideForm, fetchPosts}) =>{
     return (
         <div className="modal-overlay" onClick={hideForm}>
             <div className="modal" onClick={(e) => e.stopPropagation()}>
-                <button onClick={hideForm} className="modal-close">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+                <div className='modal-header'>
+                    <button onClick={hideForm} className="modal-close">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                    <h2>{editingPost ? 'Edit Post' : 'Create New Post'}</h2>
+                    <p>{editingPost ? 'Update your post' : 'Share your ideas with the world'}</p>
+                </div>
                 <div className="container">
                     <form onSubmit={handleSubmit} className='form'>
                         <div className='row items-center'>
@@ -78,9 +95,17 @@ const PostForm = ({hideForm, fetchPosts}) =>{
                                 cursor: 'pointer'
                                 }}
                             />
+                        {editingPost && (
+                            <div className="image-preview">
+                            <img 
+                                src={imagePreview} 
+                                alt="Preview" 
+                            />
+                            </div>
+                        )}
                         </div>
                         <div className='row items-center'>
-                            <button type="submit" className='btn btn-primary'>Create Post</button>
+                            <button type="submit" className='btn btn-primary'>{editingPost ? 'Update' : 'Create'}</button>
                         </div>
                     </form>
                 </div>
