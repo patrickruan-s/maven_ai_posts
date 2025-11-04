@@ -5,6 +5,8 @@ const PostForm = ({hideForm, fetchPosts, editingPost}) =>{
     const [content, setContent] = useState(editingPost ? editingPost.content : '')
     const [image, setImage] = useState(null)
     const [imagePreview, setImagePreview] = useState(editingPost ? editingPost.image_url : null)
+    const [description, setDescription] = useState('')
+    const [isGenerating, setIsGenerating] = useState(false)
 
     // Create post
     const handleSubmit = async (e) => {
@@ -51,6 +53,49 @@ const PostForm = ({hideForm, fetchPosts, editingPost}) =>{
         }
     }
 
+    const handleGenerate = async (e) => {
+        e.preventDefault()
+
+        if (!description.trim()) {
+            alert('Please enter a description for the post')
+            return
+        }
+
+        setIsGenerating(true)
+
+        try {
+            const response = await fetch('http://localhost:3000/posts/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ description })
+            })
+
+            if (response.ok) {
+                const data = await response.json()
+                console.log('Generated data:', data)
+                setTitle(data.title || '')
+                setContent(data.content || '')
+                if (data.image) {
+                    console.log('Setting image preview to:', data.image.url)
+                    setImagePreview(data.image.url)
+                } else {
+                    console.log('No image in response')
+                }
+            } else {
+                const error = await response.json()
+                alert(`Error: ${error.error || 'Failed to generate post'}`)
+            }
+        } catch (error) {
+            console.error(`Error generating post: ${error}`)
+            alert('Failed to generate post. Please try again.')
+        } finally {
+            setIsGenerating(false)
+        }
+    }
+    
+
     return (
         <div className="modal-overlay" onClick={hideForm}>
             <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -64,6 +109,33 @@ const PostForm = ({hideForm, fetchPosts, editingPost}) =>{
                     <p>{editingPost ? 'Update your post' : 'Share your ideas with the world'}</p>
                 </div>
                 <div className="container">
+                    {!editingPost && (
+                        <div style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '0.75rem' }}>
+                            <h3 style={{ marginBottom: '0.5rem', fontSize: '1rem', fontWeight: '600' }}>Generate with AI</h3>
+                            <p style={{ marginBottom: '1rem', fontSize: '0.875rem', color: '#6b7280' }}>Describe your post idea and let AI create it for you</p>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                <input
+                                    type="text"
+                                    placeholder="e.g., Write a blog post about the benefits of meditation"
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    disabled={isGenerating}
+                                    style={{
+                                        flex: 1,
+                                        padding: '0.75rem',
+                                        border: '1px solid rgb(226 232 240)',
+                                        borderRadius: '0.5rem'
+                                    }}
+                                />
+                                <button
+                                    onClick={handleGenerate}
+                                    disabled={isGenerating}
+                                >
+                                    {isGenerating ? 'Generating...' : 'Generate'}
+                                </button>
+                            </div>
+                        </div>
+                    )}
                     <form onSubmit={handleSubmit} className='form'>
                         <div className='row items-center'>
                             <input
@@ -86,7 +158,7 @@ const PostForm = ({hideForm, fetchPosts, editingPost}) =>{
                                 type="file"
                                 accept="image/*"
                                 onChange={handleImageChange}
-                                style={{ 
+                                style={{
                                 display: 'block',
                                 width: '100%',
                                 padding: '0.75rem',
@@ -95,11 +167,11 @@ const PostForm = ({hideForm, fetchPosts, editingPost}) =>{
                                 cursor: 'pointer'
                                 }}
                             />
-                        {editingPost && (
+                        {imagePreview && (
                             <div className="image-preview">
-                            <img 
-                                src={imagePreview} 
-                                alt="Preview" 
+                            <img
+                                src={imagePreview}
+                                alt="Preview"
                             />
                             </div>
                         )}

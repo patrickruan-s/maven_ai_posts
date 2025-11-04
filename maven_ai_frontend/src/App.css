@@ -1,5 +1,38 @@
 @import "tailwindcss";
 
+/* CSS Variables for Light/Dark Mode */
+:root[data-theme="light"] {
+  --bg-primary: rgb(248 250 252);
+  --bg-secondary: white;
+  --bg-tertiary: rgb(241 245 249);
+  --text-primary: rgb(15 23 42);
+  --text-secondary: rgb(71 85 105);
+  --text-tertiary: rgb(100 116 139);
+  --text-muted: rgb(148 163 184);
+  --border-color: rgb(226 232 240);
+  --border-light: rgb(241 245 249);
+  --card-hover-border: rgb(199 210 254);
+  --modal-overlay: rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="dark"] {
+  --bg-primary: rgb(15 23 42);
+  --bg-secondary: rgb(30 41 59);
+  --bg-tertiary: rgb(51 65 85);
+  --text-primary: rgb(248 250 252);
+  --text-secondary: rgb(203 213 225);
+  --text-tertiary: rgb(148 163 184);
+  --text-muted: rgb(100 116 139);
+  --border-color: rgb(51 65 85);
+  --border-light: rgb(71 85 105);
+  --card-hover-border: rgb(99 102 241);
+  --modal-overlay: rgba(0, 0, 0, 0.7);
+}
+
+.generate-button {
+  padding: 0.75rem 1.5rem,
+}
+
 .card-image {
   width: 100%;
   height: 100%;
@@ -27,22 +60,24 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--modal-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 100;
   padding: 1rem;
+  transition: background-color 0.3s ease;
 }
 
 .modal {
-  background-color: white;
+  background-color: var(--bg-secondary);
   border-radius: 1rem;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
   max-width: 42rem;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
+  transition: background-color 0.3s ease;
 }
 
 .modal-header {
@@ -111,7 +146,8 @@
 /* Layout */
 .page {
   min-height: 100vh;
-  background-color: rgb(248 250 252);
+  background-color: var(--bg-primary);
+  transition: background-color 0.3s ease;
 }
 
 .container {
@@ -126,12 +162,13 @@
 
 /* Header */
 .header {
-  background-color: white;
-  border-bottom: 1px solid rgb(226 232 240);
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
   position: sticky;
   top: 0;
   z-index: 50;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .header-content {
@@ -168,7 +205,8 @@
 .logo-text h1 {
   font-size: 1.25rem;
   font-weight: 700;
-  color: rgb(15 23 42);
+  color: var(--text-primary);
+  transition: color 0.3s ease;
 }
 
 .logo-text p {
@@ -357,12 +395,13 @@
 
 /* Empty State */
 .empty-state {
-  background-color: white;
+  background-color: var(--bg-secondary);
   border-radius: 1rem;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  border: 1px solid rgb(226 232 240);
+  border: 1px solid var(--border-color);
   padding: 4rem;
   text-align: center;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .empty-state-icon {
@@ -385,14 +424,16 @@
 .empty-state h3 {
   font-size: 1.25rem;
   font-weight: 600;
-  color: rgb(15 23 42);
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
+  transition: color 0.3s ease;
 }
 
 .empty-state p {
-  color: rgb(100 116 139);
+  color: var(--text-tertiary);
   max-width: 24rem;
   margin: 0 auto;
+  transition: color 0.3s ease;
 }
 
 /* Grid */
@@ -415,10 +456,10 @@
 
 /* Card */
 .card {
-  background-color: white;
+  background-color: var(--bg-secondary);
   border-radius: 0.75rem;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  border: 1px solid rgb(226 232 240);
+  border: 1px solid var(--border-color);
   overflow: hidden;
   cursor: pointer;
   transition: all 0.3s;
@@ -428,7 +469,7 @@
 
 .card:hover {
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-  border-color: rgb(199 210 254);
+  border-color: var(--card-hover-border);
 }
 
 .card-accent {
@@ -466,7 +507,7 @@
 .card-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: rgb(15 23 42);
+  color: var(--text-primary);
   margin-bottom: 0.75rem;
   transition: color 0.2s;
 }
@@ -476,9 +517,10 @@
 }
 
 .card-text {
-  color: rgb(71 85 105);
+  color: var(--text-secondary);
   line-height: 1.625;
   margin-bottom: 1rem;
+  transition: color 0.3s ease;
 }
 
 .card-link {
@@ -506,11 +548,12 @@
 
 .card-footer {
   padding: 1rem 1.5rem;
-  background-color: rgb(248 250 252);
-  border-top: 1px solid rgb(241 245 249);
+  background-color: var(--bg-primary);
+  border-top: 1px solid var(--border-light);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .card-meta {
@@ -529,10 +572,11 @@
 /* Loading */
 .loading {
   min-height: 100vh;
-  background-color: rgb(248 250 252);
+  background-color: var(--bg-primary);
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background-color 0.3s ease;
 }
 
 .loading-content {
@@ -562,11 +606,12 @@
 
 /* Article */
 .article {
-  background-color: white;
+  background-color: var(--bg-secondary);
   border-radius: 1rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  border: 1px solid rgb(226 232 240);
+  border: 1px solid var(--border-color);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .article-header {
@@ -660,6 +705,8 @@
 
 .article-content {
   padding: 2rem;
+  background-color: var(--bg-secondary);
+  transition: background-color 0.3s ease;
 }
 
 @media (min-width: 640px) {
@@ -669,19 +716,21 @@
 }
 
 .article-text {
-  color: rgb(55 65 81);
+  color: var(--text-secondary);
   font-size: 1.125rem;
   line-height: 1.625;
   white-space: pre-wrap;
+  transition: color 0.3s ease;
 }
 
 .article-footer {
-  border-top: 1px solid rgb(226 232 240);
-  background-color: rgb(248 250 252);
+  border-top: 1px solid var(--border-color);
+  background-color: var(--bg-primary);
   padding: 1.5rem 2rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 @media (min-width: 640px) {
@@ -696,4 +745,100 @@
 .article-actions {
   display: flex;
   gap: 0.75rem;
+}
+
+/* Image Preview */
+.image-preview {
+  width: 100%;
+  margin-top: 1rem;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid rgb(226 232 240);
+  background-color: rgb(241 245 249);
+}
+
+.image-preview img {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Pagination */
+.pagination-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 3rem;
+  margin-bottom: 2rem;
+}
+
+.pagination-info {
+  color: var(--text-tertiary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.pagination {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pagination-btn {
+  min-width: 2.5rem;
+  height: 2.5rem;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: var(--bg-tertiary);
+  border-color: rgb(99 102 241);
+  transform: translateY(-1px);
+}
+
+.pagination-btn.active {
+  background: linear-gradient(to right, rgb(99 102 241), rgb(168 85 247));
+  border-color: rgb(99 102 241);
+  color: white;
+  font-weight: 600;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination-ellipsis {
+  min-width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-weight: 600;
+  user-select: none;
+}
+
+@media (min-width: 640px) {
+  .pagination-container {
+    flex-direction: row;
+    justify-content: space-between;
+  }
 }
