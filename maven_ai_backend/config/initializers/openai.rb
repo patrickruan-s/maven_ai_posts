@@ -1,5 +1,5 @@
 require 'openai'
 
 OpenAI.configure do |config|
-  config.access_token = ENV.fetch('OPENAI_ACCESS_TOKEN', nil)
+  config.access_token = ENV.fetch('OPENAI_ACCESS_TOKEN', nil)&.strip
 end
