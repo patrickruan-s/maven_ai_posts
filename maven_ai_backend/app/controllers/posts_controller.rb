@@ -99,16 +99,35 @@ class PostsController < ApplicationController
 
       generated_data = JSON.parse(response.dig('choices', 0, 'message', 'content'))
 
-      # Fetch image from Unsplash
-      search_query = description.split.first(3).join(' ')
-      photos = Unsplash::Photo.search(search_query, 1, 1)
+      # Generate image using OpenAI DALL-E with randomized styles
+      styles = [
+        "Modern, minimalist illustration",
+        "Vibrant, colorful digital art",
+        "Professional photography style",
+        "Abstract artistic representation",
+        "Watercolor painting style",
+        "Cinematic, dramatic lighting",
+        "Flat design, geometric shapes",
+        "3D rendered scene"
+      ]
 
-      image_data = if photos.any?
+      random_style = styles.sample
+      image_prompt = "#{random_style}: #{generated_data['title']}"
+
+      image_response = client.images.generate(
+        parameters: {
+          prompt: image_prompt,
+          size: "1024x1024",
+          model: "dall-e-2",
+          n: 1
+        }
+      )
+
+      image_data = if image_response.dig('data', 0, 'url')
         {
-          url: photos.first.urls.regular,
-          alt: photos.first.alt_description || search_query,
-          photographer: photos.first.user.name,
-          photographer_url: photos.first.user.links.html
+          url: image_response.dig('data', 0, 'url'),
+          alt: generated_data['title'],
+          prompt: image_prompt
         }
       else
         nil
