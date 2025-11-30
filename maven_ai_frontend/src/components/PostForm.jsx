@@ -1,5 +1,6 @@
 import { useState } from 'react'
- 
+import API_URL from '../config/api'
+
 const PostForm = ({hideForm, fetchPosts, editingPost}) =>{
     const [title, setTitle] = useState(editingPost ? editingPost.title : '')
     const [content, setContent] = useState(editingPost ? editingPost.content : '')
@@ -24,9 +25,9 @@ const PostForm = ({hideForm, fetchPosts, editingPost}) =>{
             formData.append('post[external_image_url]', externalImageUrl)
         }
 
-        const url = editingPost 
-        ? `http://localhost:3000/posts/${editingPost.id}`
-        : 'http://localhost:3000/posts'
+        const url = editingPost
+        ? `${API_URL}/posts/${editingPost.id}`
+        : `${API_URL}/posts`
       
         const method = editingPost ? 'PATCH' : 'POST'
 
@@ -69,7 +70,7 @@ const PostForm = ({hideForm, fetchPosts, editingPost}) =>{
         setIsGenerating(true)
 
         try {
-            const response = await fetch('http://localhost:3000/posts/generate', {
+            const response = await fetch(`${API_URL}/posts/generate`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

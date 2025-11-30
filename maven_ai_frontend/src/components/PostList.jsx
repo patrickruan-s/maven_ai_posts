@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import PostForm from './PostForm'
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
+import API_URL from '../config/api'
 import '../App.css'
 
 function PostList() {
@@ -26,7 +27,7 @@ function PostList() {
   const fetchPosts = async (page = 1) => {
     setIsLoading(true)
     try {
-      const response = await fetch(`http://localhost:3000/posts?page=${page}&per_page=${perPage}`)
+      const response = await fetch(`${API_URL}/posts?page=${page}&per_page=${perPage}`)
       const data = await response.json()
       setPosts(data.posts)
       setCurrentPage(data.meta.current_page)
@@ -44,7 +45,7 @@ function PostList() {
     e.stopPropagation()
     if (window.confirm('Are you sure you want to delete this post?')) {
       try {
-        await fetch(`http://localhost:3000/posts/${id}`, {
+        await fetch(`${API_URL}/posts/${id}`, {
           method: 'DELETE'
         })
         fetchPosts(currentPage)

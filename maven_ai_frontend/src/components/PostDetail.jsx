@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import API_URL from '../config/api'
 import '../App.css'
 
 function PostDetail() {
@@ -14,7 +15,7 @@ function PostDetail() {
 
   const fetchPost = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/posts/${id}`)
+      const response = await fetch(`${API_URL}/posts/${id}`)
       if (response.ok) {
         const data = await response.json()
         setPost(data)
@@ -32,7 +33,7 @@ function PostDetail() {
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this post?')) {
       try {
-        await fetch(`http://localhost:3000/posts/${id}`, {
+        await fetch(`${API_URL}/posts/${id}`, {
           method: 'DELETE'
         })
         navigate('/')
