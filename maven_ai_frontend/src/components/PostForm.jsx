@@ -5,19 +5,23 @@ const PostForm = ({hideForm, fetchPosts, editingPost}) =>{
     const [content, setContent] = useState(editingPost ? editingPost.content : '')
     const [image, setImage] = useState(null)
     const [imagePreview, setImagePreview] = useState(editingPost ? editingPost.image_url : null)
+    const [externalImageUrl, setExternalImageUrl] = useState(null)
     const [description, setDescription] = useState('')
     const [isGenerating, setIsGenerating] = useState(false)
+    const [rateLimitWait, setRateLimitWait] = useState(0)
 
     // Create post
     const handleSubmit = async (e) => {
         e.preventDefault()
-        
-        try { 
+
+        try {
         const formData = new FormData()
         formData.append('post[title]', title)
         formData.append('post[content]', content)
         if (image) {
             formData.append('post[image]', image)
+        } else if (externalImageUrl) {
+            formData.append('post[external_image_url]', externalImageUrl)
         }
 
         const url = editingPost 
@@ -45,6 +49,7 @@ const PostForm = ({hideForm, fetchPosts, editingPost}) =>{
         const file = e.target.files[0]
         if (file) {
         setImage(file)
+        setExternalImageUrl(null) // Clear external URL when user uploads a file
         const reader = new FileReader()
         reader.onloadend = () => {
             setImagePreview(reader.result)
@@ -80,9 +85,30 @@ const PostForm = ({hideForm, fetchPosts, editingPost}) =>{
                 if (data.image) {
                     console.log('Setting image preview to:', data.image.url)
                     setImagePreview(data.image.url)
+                    setExternalImageUrl(data.image.url)
+                    setImage(null) // Clear uploaded file when AI generates an image
                 } else {
                     console.log('No image in response')
                 }
+            } else if (response.status === 429) {
+                const error = await response.json()
+                // Extract wait time from error message if available
+                const waitMatch = error.error?.match(/(\d+) seconds/)
+                const waitTime = waitMatch ? parseInt(waitMatch[1]) : 10
+                setRateLimitWait(waitTime)
+
+                // Countdown timer
+                const countdownInterval = setInterval(() => {
+                    setRateLimitWait(prev => {
+                        if (prev <= 1) {
+                            clearInterval(countdownInterval)
+                            return 0
+                        }
+                        return prev - 1
+                    })
+                }, 1000)
+
+                alert(error.error || 'Too many requests. Please wait a moment and try again.')
             } else {
                 const error = await response.json()
                 alert(`Error: ${error.error || 'Failed to generate post'}`)
@@ -119,7 +145,7 @@ const PostForm = ({hideForm, fetchPosts, editingPost}) =>{
                                     placeholder="e.g., Write a blog post about the benefits of meditation"
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
-                                    disabled={isGenerating}
+                                    disabled={isGenerating || rateLimitWait > 0}
                                     style={{
                                         flex: 1,
                                         padding: '0.75rem',
@@ -129,9 +155,9 @@ const PostForm = ({hideForm, fetchPosts, editingPost}) =>{
                                 />
                                 <button
                                     onClick={handleGenerate}
-                                    disabled={isGenerating}
+                                    disabled={isGenerating || rateLimitWait > 0}
                                 >
-                                    {isGenerating ? 'Generating...' : 'Generate'}
+                                    {isGenerating ? 'Generating...' : rateLimitWait > 0 ? `Wait ${rateLimitWait}s` : 'Generate'}
                                 </button>
                             </div>
                         </div>
