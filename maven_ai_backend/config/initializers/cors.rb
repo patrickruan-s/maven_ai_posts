@@ -7,7 +7,13 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins 'http://localhost:5173'
+    # Allow localhost for development
+    origins 'http://localhost:5173',
+            'http://localhost:3000',
+            # Allow Vercel deployments (add your actual domain after deploying frontend)
+            /https:\/\/.*\.vercel\.app$/,
+            # Allow Netlify deployments
+            /https:\/\/.*\.netlify\.app$/
 
     resource "*",
       headers: :any,
