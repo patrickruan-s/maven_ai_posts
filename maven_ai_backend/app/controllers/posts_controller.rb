@@ -34,6 +34,9 @@ class PostsController < ApplicationController
 
     if params[:post][:image].present?
       @post.image.attach(params[:post][:image])
+    elsif params[:post][:external_image_url].present?
+      # Download and attach image from external URL (e.g., DALL-E)
+      attach_external_image(@post, params[:post][:external_image_url])
     end
 
     if @post.save
@@ -47,8 +50,11 @@ class PostsController < ApplicationController
   def update
     if params[:post][:image].present?
       @post.image.attach(params[:post][:image])
+    elsif params[:post][:external_image_url].present?
+      # Download and attach image from external URL (e.g., DALL-E)
+      attach_external_image(@post, params[:post][:external_image_url])
     end
-  
+
     if @post.update(post_params)
       render json: post_with_image(@post)
     else
@@ -158,7 +164,30 @@ class PostsController < ApplicationController
 
     def post_with_image(post)
       post.as_json.merge(
-        image_url: post.image.attached? ? url_for(post.image) : post.external_image_url
+        image_url: post.image.attached? ? url_for(post.image) : nil
       )
+    end
+
+    def attach_external_image(post, image_url)
+      require 'open-uri'
+
+      begin
+        # Download image from URL
+        downloaded_image = URI.open(image_url)
+
+        # Extract filename from URL or use a default
+        filename = File.basename(URI.parse(image_url).path)
+        filename = "ai-generated-#{Time.now.to_i}.png" if filename.blank? || filename == '/'
+
+        # Attach to post
+        post.image.attach(
+          io: downloaded_image,
+          filename: filename,
+          content_type: downloaded_image.content_type || 'image/png'
+        )
+      rescue => e
+        Rails.logger.error "Failed to download external image: #{e.message}"
+        # Fallback: keep the external_image_url if download fails
+      end
     end
 end
