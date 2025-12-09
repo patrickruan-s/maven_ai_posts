@@ -105,44 +105,69 @@ class PostsController < ApplicationController
 
       generated_data = JSON.parse(response.dig('choices', 0, 'message', 'content'))
 
-      # Generate image using OpenAI DALL-E with randomized styles
-      styles = [
-        "Modern, minimalist illustration",
-        "Vibrant, colorful digital art",
-        "Professional photography style",
-        "Abstract artistic representation",
-        "Watercolor painting style",
-        "Cinematic, dramatic lighting",
-        "Flat design, geometric shapes",
-        "3D rendered scene"
-      ]
+      # Try to generate image using OpenAI DALL-E
+      image_data = nil
+      image_error_message = nil
 
-      random_style = styles.sample
-      image_prompt = "#{random_style}: #{generated_data['title']}"
+      begin
+        styles = [
+          "Modern, minimalist illustration",
+          "Vibrant, colorful digital art",
+          "Professional photography style",
+          "Abstract artistic representation",
+          "Watercolor painting style",
+          "Cinematic, dramatic lighting",
+          "Flat design, geometric shapes",
+          "3D rendered scene"
+        ]
 
-      image_response = client.images.generate(
-        parameters: {
-          prompt: image_prompt,
-          size: "1024x1024",
-          model: "dall-e-2",
-          n: 1
-        }
-      )
+        random_style = styles.sample
+        image_prompt = "#{random_style}: #{generated_data['title']}"
 
-      image_data = if image_response.dig('data', 0, 'url')
-        {
-          url: image_response.dig('data', 0, 'url'),
-          alt: generated_data['title'],
-          prompt: image_prompt
-        }
-      else
-        nil
+        # Try DALL-E 3 first (newer, better quality)
+        begin
+          Rails.logger.info "Attempting DALL-E 3 image generation..."
+          image_response = client.images.generate(
+            parameters: {
+              prompt: image_prompt,
+              size: "1024x1024",
+              model: "dall-e-3",
+              quality: "standard",
+              n: 1
+            }
+          )
+        rescue => e
+          # DALL-E 3 failed, try DALL-E 2
+          Rails.logger.warn "DALL-E 3 failed: #{e.message}. Trying DALL-E 2..."
+          image_response = client.images.generate(
+            parameters: {
+              prompt: image_prompt,
+              size: "1024x1024",
+              model: "dall-e-2",
+              n: 1
+            }
+          )
+        end
+
+        if image_response.dig('data', 0, 'url')
+          image_data = {
+            url: image_response.dig('data', 0, 'url'),
+            alt: generated_data['title'],
+            prompt: image_prompt
+          }
+          Rails.logger.info "Image generated successfully!"
+        end
+      rescue => image_error
+        # Log the error but don't fail the entire request
+        Rails.logger.error "DALL-E image generation failed: #{image_error.class} - #{image_error.message}"
+        image_error_message = "Image generation unavailable. Please check OpenAI billing and DALL-E access."
       end
 
       render json: {
         title: generated_data['title'],
         content: generated_data['content'],
-        image: image_data
+        image: image_data,
+        image_error: image_error_message
       }
     rescue => e
       Rails.logger.error "Error generating post: #{e.class} - #{e.message}"

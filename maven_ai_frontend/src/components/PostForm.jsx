@@ -88,6 +88,9 @@ const PostForm = ({hideForm, fetchPosts, editingPost}) =>{
                     setImagePreview(data.image.url)
                     setExternalImageUrl(data.image.url)
                     setImage(null) // Clear uploaded file when AI generates an image
+                } else if (data.image_error) {
+                    console.warn('Image generation failed:', data.image_error)
+                    alert(`Note: ${data.image_error}\n\nYou can still use the generated text and manually upload an image.`)
                 } else {
                     console.log('No image in response')
                 }
