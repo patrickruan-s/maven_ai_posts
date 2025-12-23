@@ -9,7 +9,8 @@ class PostsController < ApplicationController
     total_count = Post.count
     total_pages = (total_count.to_f / per_page).ceil
 
-    @posts = Post.order(created_at: :desc)
+    @posts = Post.with_attached_image
+                 .order(created_at: :desc)
                  .limit(per_page)
                  .offset((page - 1) * per_page)
 
