@@ -7,6 +7,7 @@ local:
   root: <%= Rails.root.join("storage") %>
 
 # Use environment variables for AWS S3 configuration
+# Test deployment persistance
 amazon:
   service: S3
   access_key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
