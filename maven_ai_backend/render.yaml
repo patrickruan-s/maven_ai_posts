@@ -15,6 +15,14 @@ services:
         fromDatabase:
           name: maven-ai-db
           property: connectionString
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        value: us-east-1
+      - key: AWS_BUCKET_NAME
+        sync: false
 
 databases:
   - name: maven-ai-db
