@@ -9,13 +9,13 @@ class PostsController < ApplicationController
     total_count = Post.count
     total_pages = (total_count.to_f / per_page).ceil
 
-    @posts = Post.with_attached_image
+    @posts = Post.with_attached_images
                  .order(created_at: :desc)
                  .limit(per_page)
                  .offset((page - 1) * per_page)
 
     render json: {
-      posts: @posts.map { |post| post_with_image(post) },
+      posts: @posts.map { |post| post_with_images(post) },
       meta: {
         current_page: page,
         total_pages: total_pages,
@@ -41,7 +41,7 @@ class PostsController < ApplicationController
     end
 
     if @post.save
-      render json: post_with_image(@post), status: :created, location: @post
+      render json: post_with_images(@post), status: :created, location: @post
     else
       render json: @post.errors, status: :unprocessable_entity
     end
@@ -49,8 +49,8 @@ class PostsController < ApplicationController
 
   # PATCH/PUT /posts/1
   def update
-    if params[:post][:image].present?
-      @post.image.attach(params[:post][:image])
+    if params[:post][:images].present?
+      @post.images.attach(params[:post][:images])
     elsif params[:post][:external_image_url].present?
       # Download and attach image from external URL (e.g., DALL-E)
       attach_external_image(@post, params[:post][:external_image_url])
@@ -188,9 +188,9 @@ class PostsController < ApplicationController
       params.require(:post).permit(:title, :content, :scheduled, :external_image_url)
     end
 
-    def post_with_image(post)
+    def post_with_images(post)
       post.as_json.merge(
-        image_url: post.image.attached? ? url_for(post.image) : nil
+        image_urls: post.images.attached? ? post.images.map {|image| url_for(image)} : nil
       )
     end
 
@@ -206,7 +206,7 @@ class PostsController < ApplicationController
         filename = "ai-generated-#{Time.now.to_i}.png" if filename.blank? || filename == '/'
 
         # Attach to post
-        post.image.attach(
+        post.images.attach(
           io: downloaded_image,
           filename: filename,
           content_type: downloaded_image.content_type || 'image/png'
