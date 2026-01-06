@@ -26,15 +26,14 @@ class PostsController < ApplicationController
 
   # GET /posts/1
   def show
-    render json: post_with_image(@post)
+    render json: post_with_images(@post)
   end
 
   # POST /posts
   def create
     @post = Post.new(post_params)
-
-    if params[:post][:image].present?
-      @post.image.attach(params[:post][:image])
+    if params[:post][:images].present?
+      @post.images.attach(params[:post][:images])
     elsif params[:post][:external_image_url].present?
       # Download and attach image from external URL (e.g., DALL-E)
       attach_external_image(@post, params[:post][:external_image_url])
@@ -185,7 +184,7 @@ class PostsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def post_params
-      params.require(:post).permit(:title, :content, :scheduled, :external_image_url)
+      params.require(:post).permit(:title, :content, :scheduled, :external_image_url, :images)
     end
 
     def post_with_images(post)
