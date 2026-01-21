@@ -1,15 +1,24 @@
-import { useState } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import API_URL from '../config/api'
+import ImagePreview from './ImagePreview'
 
-const PostForm = ({hideForm, fetchPosts, editingPost}) =>{
+const PostForm = ({hideForm, fetchPosts, editingPost}) => {
     const [title, setTitle] = useState(editingPost ? editingPost.title : '')
     const [content, setContent] = useState(editingPost ? editingPost.content : '')
-    const [image, setImage] = useState(null)
-    const [imagePreview, setImagePreview] = useState(editingPost ? editingPost.image_url : null)
+    const [images, setImages] = useState([])
     const [externalImageUrl, setExternalImageUrl] = useState(null)
     const [description, setDescription] = useState('')
     const [isGenerating, setIsGenerating] = useState(false)
     const [rateLimitWait, setRateLimitWait] = useState(0)
+    const fileInputRef = useRef(null)
+
+    const imageUrls = useMemo(() => {
+        if (editingPost) {
+            return editingPost.image_urls
+        } else {
+            return images?.map(image => URL.createObjectURL(image)) || []
+        }
+    }, [images, editingPost])
 
     // Create post
     const handleSubmit = async (e) => {
@@ -19,8 +28,10 @@ const PostForm = ({hideForm, fetchPosts, editingPost}) =>{
         const formData = new FormData()
         formData.append('post[title]', title)
         formData.append('post[content]', content)
-        if (image) {
-            formData.append('post[image]', image)
+        if (images && images.length > 0) {
+            images.forEach((image) => {
+                formData.append('post[images][]', image)
+            })
         } else if (externalImageUrl) {
             formData.append('post[external_image_url]', externalImageUrl)
         }
@@ -37,7 +48,7 @@ const PostForm = ({hideForm, fetchPosts, editingPost}) =>{
         })
         
         if (response.ok) {
-            setImage(null)
+            setImages([])
             hideForm()
             fetchPosts()
         }
@@ -47,15 +58,13 @@ const PostForm = ({hideForm, fetchPosts, editingPost}) =>{
     }
 
     const handleImageChange = (e) => {
-        const file = e.target.files[0]
-        if (file) {
-        setImage(file)
-        setExternalImageUrl(null) // Clear external URL when user uploads a file
-        const reader = new FileReader()
-        reader.onloadend = () => {
-            setImagePreview(reader.result)
-        }
-        reader.readAsDataURL(file)
+        const fileList = e.target.files
+        if (fileList) {
+            setImages(prevImages => [
+                ...prevImages,
+                ...Array.from(fileList)
+            ])
+            setExternalImageUrl(null) // Clear external URL when user uploads a file
         }
     }
 
@@ -85,9 +94,8 @@ const PostForm = ({hideForm, fetchPosts, editingPost}) =>{
                 setContent(data.content || '')
                 if (data.image) {
                     console.log('Setting image preview to:', data.image.url)
-                    setImagePreview(data.image.url)
                     setExternalImageUrl(data.image.url)
-                    setImage(null) // Clear uploaded file when AI generates an image
+                    setImages([]) // Clear uploaded file when AI generates an image
                 } else if (data.image_error) {
                     console.warn('Image generation failed:', data.image_error)
                     alert(`Note: ${data.image_error}\n\nYou can still use the generated text and manually upload an image.`)
@@ -183,28 +191,26 @@ const PostForm = ({hideForm, fetchPosts, editingPost}) =>{
                                 required
                                 className='input'
                             />
-                            <input
-                                placeholder="Image"
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageChange}
-                                style={{
-                                display: 'block',
-                                width: '100%',
-                                padding: '0.75rem',
-                                border: '1px solid rgb(226 232 240)',
-                                borderRadius: '0.75rem',
-                                cursor: 'pointer'
-                                }}
-                            />
-                        {imagePreview && (
-                            <div className="image-preview">
-                            <img
-                                src={imagePreview}
-                                alt="Preview"
-                            />
+                            <div>
+                                <button
+                                    type="button"
+                                    className="image-btn btn-secondary"
+                                    onClick={() => fileInputRef.current?.click()}
+                                >
+                                    +
+                                </button>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageChange}
+                                    style={{ display: 'none' }}
+                                    multiple
+                                />
                             </div>
-                        )}
+                        <div>
+                            <ImagePreview imageUrls={externalImageUrl ? [externalImageUrl] : imageUrls} />
+                        </div>
                         </div>
                         <div className='row items-center'>
                             <button type="submit" className='btn btn-primary'>{editingPost ? 'Update' : 'Create'}</button>

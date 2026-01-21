@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import API_URL from '../config/api'
 import '../App.css'
+import ImagePreview from './ImagePreview'
 
 function PostDetail() {
   const { id } = useParams()
@@ -104,15 +105,7 @@ function PostDetail() {
             </h1>
           </div>
           <div className='card-image'>
-            {post.image_url && (
-              <div className='p-8'>
-                <img 
-                  src={post.image_url} 
-                  alt={post.title}
-                  style={{ width: '100%', maxHeight: '100%', objectFit: 'cover' }}
-                />
-              </div>
-            )}
+            <ImagePreview imageUrls={post.image_urls} />
           </div>
 
           {/* Content */}

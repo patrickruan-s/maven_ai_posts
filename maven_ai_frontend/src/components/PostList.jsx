@@ -210,10 +210,10 @@ function PostList() {
                 >
                   <div className="card-accent"></div>
                   <div className="card-image">
-                    {post.image_url && (
+                    {post.image_urls && (
                       <div style={{ width: '100%', height: '12rem', overflow: 'hidden' }}>
                         <img
-                          src={post.image_url}
+                          src={post.image_urls[0]}
                           alt={post.title}
                           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         />
